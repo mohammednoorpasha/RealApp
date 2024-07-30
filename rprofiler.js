@@ -57,6 +57,14 @@ var WindowEvent;
     WindowEvent["Error"] = "error";
     WindowEvent["Unload"] = "unload";
 })(WindowEvent || (WindowEvent = {}));
+var LoadStateEnum;
+(function (LoadStateEnum) {
+    LoadStateEnum[LoadStateEnum["None"] = 0] = "None";
+    LoadStateEnum[LoadStateEnum["Loading"] = 1] = "Loading";
+    LoadStateEnum[LoadStateEnum["Complete"] = 2] = "Complete";
+    LoadStateEnum[LoadStateEnum["DomInteractive"] = 3] = "DomInteractive";
+    LoadStateEnum[LoadStateEnum["DomContentLoaded"] = 4] = "DomContentLoaded";
+})(LoadStateEnum || (LoadStateEnum = {}));
 var VisibilityType;
 (function (VisibilityType) {
     VisibilityType[VisibilityType["Focus"] = 0] = "Focus";
@@ -753,13 +761,13 @@ var MainConfig = /** @class */ (function () {
         sampleRate: -999, // range [0 - 100]
         waterfallSampleRate: -888, // range [0 - 100]
         postUrl: _f.protocol + 'lst01a.3genlabs.net/hawklogserver/r.p',
-        siteId: 91649,
+        siteId: 91825,
         debugParameter: 'GlimpseDebug',
         debugUrl: 'portalstage.catchpoint.com/jp/v4.0.1/D',
         waterfallParameter: 'GlimpseWaterfall',
         sendOnLoad: false, // default is send onunload
         clearResources: true, // clear performance entries when we send data to core. using performance.clearResourceTimings()
-        ajaxDomains: '{{ajaxDomains}}'
+        ajaxDomains: ''
     };
     return MainConfig;
 }());
@@ -879,6 +887,20 @@ var Util = /** @class */ (function () {
         }
         config.profiler.eventManager.clear();
         config.profiler.getEventTimingHandler().clear();
+    };
+    Util.getLoadStateEnum = function (state) {
+        switch (state) {
+            case 'loading':
+                return LoadStateEnum.Loading;
+            case "dom-content-loaded":
+                return LoadStateEnum.DomContentLoaded;
+            case 'dom-interactive':
+                return LoadStateEnum.DomInteractive;
+            case 'complete':
+                return LoadStateEnum.Complete;
+            default:
+                return LoadStateEnum.None;
+        }
     };
     Util.getNavigationTime = function () {
         var timing = null;
@@ -2610,7 +2632,7 @@ var mainScript = function () { return __awaiter(void 0, void 0, void 0, function
                     var response, data;
                     return __generator(this, function (_a) {
                         switch (_a.label) {
-                            case 0: return [4 /*yield*/, fetch('https://portalstage.catchpoint.com/jp/91649/v4.0.1/AC')];
+                            case 0: return [4 /*yield*/, fetch('https://portalstage.catchpoint.com/jp/91825/v4.0.1/AC')];
                             case 1:
                                 response = _a.sent();
                                 return [4 /*yield*/, response.json()];
@@ -3286,7 +3308,7 @@ var RProfiler = /** @class */ (function () {
         var _this = this;
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        this.restUrl = 'portalstage.catchpoint.com/jp/91649/v4.0.1/M';
+        this.restUrl = 'portalstage.catchpoint.com/jp/91825/v4.0.1/M';
         this.startTime = new Date().getTime();
         this.eventsTimingHandler = new rprofiler_EventsTimingHandler();
         this.inputDelay = new rprofiler_InputDelayHandler();
@@ -3331,7 +3353,7 @@ var RProfiler = /** @class */ (function () {
                         psdu: main_Util.getRoundedValue(attribution.processingDuration),
                         prdl: main_Util.getRoundedValue(attribution.presentationDelay),
                         val: main_Util.getRoundedValue(metricValue),
-                        ls: attribution.loadState
+                        ls: main_Util.getLoadStateEnum(attribution.loadState)
                     };
                     _this.inpDe.push(rprofiler_assign({}, eventParams));
                     _this.inpDe.sort(function (a, b) { return b.val - a.val; });
